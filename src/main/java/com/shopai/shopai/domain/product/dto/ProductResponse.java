@@ -7,43 +7,24 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
 @Builder
 @Schema(description = "상품 응답")
 public class ProductResponse {
-    @Schema(description = "상품 ID")
     private Long id;
-
-    @Schema(description = "상품명")
     private String name;
-
-    @Schema(description = "카테고리")
     private String category;
-
-    @Schema(description = "가격")
-    private BigDecimal price;
-
-    @Schema(description = "상품 설명")
+    private BigDecimal basePrice;
     private String description;
-
-    @Schema(description = "AI 생성 설명")
     private String aiDescription;
-
-    @Schema(description = "이미지 URL")
     private String imageUrl;
-
-    @Schema(description = "재고 수량")
-    private Integer stockQuantity;
-
-    @Schema(description = "상품 상태")
     private ProductStatus status;
-
-    @Schema(description = "생성일시")
+    private List<OptionGroupResponse> optionGroups;
+    private List<VariantResponse> variants;
     private LocalDateTime createdAt;
-
-    @Schema(description = "수정일시")
     private LocalDateTime updatedAt;
 
     public static ProductResponse from(Product product) {
@@ -51,12 +32,17 @@ public class ProductResponse {
                 .id(product.getId())
                 .name(product.getName())
                 .category(product.getCategory())
-                .price(product.getPrice())
+                .basePrice(product.getBasePrice())
                 .description(product.getDescription())
                 .aiDescription(product.getAiDescription())
                 .imageUrl(product.getImageUrl())
-                .stockQuantity(product.getStockQuantity())
                 .status(product.getStatus())
+                .optionGroups(product.getOptionGroups().stream()
+                        .map(OptionGroupResponse::from)
+                        .toList())
+                .variants(product.getVariants().stream()
+                        .map(VariantResponse::from)
+                        .toList())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .build();
