@@ -1,8 +1,6 @@
 package com.shopai.shopai.domain.product.controller;
 
-import com.shopai.shopai.domain.product.dto.ProductCreateRequest;
-import com.shopai.shopai.domain.product.dto.ProductResponse;
-import com.shopai.shopai.domain.product.dto.ProductUpdateRequest;
+import com.shopai.shopai.domain.product.dto.*;
 import com.shopai.shopai.domain.product.entity.ProductStatus;
 import com.shopai.shopai.domain.product.service.ProductService;
 import com.shopai.shopai.global.dto.ApiResponse;
@@ -61,6 +59,35 @@ public class ProductController {
             @Valid @RequestBody ProductUpdateRequest request) {
         ProductResponse product = productService.updateProduct(id, request);
         return ResponseEntity.ok(ApiResponse.of(SuccessCode.PRODUCT_UPDATED, product));
+    }
+
+    @PostMapping("/{id}/variants")
+    @Operation(summary = "상품 variant 추가")
+    public ResponseEntity<ApiResponse<VariantResponse>> addVariant(
+            @PathVariable Long id,
+            @Valid @RequestBody VariantCreateRequest request) {
+        VariantResponse variant = productService.addVariant(id, request);
+        return ResponseEntity.status(SuccessCode.PRODUCT_UPDATED.getStatus())
+                .body(ApiResponse.of(SuccessCode.PRODUCT_UPDATED, variant));
+    }
+
+    @PatchMapping("/{id}/variants/{variantId}")
+    @Operation(summary = "variant 수정 (재고/가격/상태)")
+    public ResponseEntity<ApiResponse<VariantResponse>> updateVariant(
+            @PathVariable Long id,
+            @PathVariable Long variantId,
+            @Valid @RequestBody VariantUpdateRequest request) {
+        VariantResponse variant = productService.updateVariant(id, variantId, request);
+        return ResponseEntity.ok(ApiResponse.of(SuccessCode.PRODUCT_UPDATED, variant));
+    }
+
+    @DeleteMapping("/{id}/variants/{variantId}")
+    @Operation(summary = "variant 삭제")
+    public ResponseEntity<ApiResponse<Void>> deleteVariant(
+            @PathVariable Long id,
+            @PathVariable Long variantId) {
+        productService.deleteVariant(id, variantId);
+        return ResponseEntity.ok(ApiResponse.of(SuccessCode.PRODUCT_DELETED));
     }
 
     @DeleteMapping("/{id}")

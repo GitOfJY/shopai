@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -24,7 +26,7 @@ public class Product extends BaseEntity {
     private String category;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    private BigDecimal basePrice;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -38,19 +40,23 @@ public class Product extends BaseEntity {
     @Column(columnDefinition = "JSON")
     private String embeddingVector;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private Integer stockQuantity = 0;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
     private ProductStatus status = ProductStatus.ACTIVE;
 
-    public void update(String name, String category, BigDecimal price, String description, String imageUrl) {
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ProductOptionGroup> optionGroups = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ProductVariant> variants = new ArrayList<>();
+
+    public void update(String name, String category, BigDecimal basePrice, String description, String imageUrl) {
         this.name = name;
         this.category = category;
-        this.price = price;
+        this.basePrice = basePrice;
         this.description = description;
         this.imageUrl = imageUrl;
     }
@@ -61,22 +67,5 @@ public class Product extends BaseEntity {
 
     public void updateStatus(ProductStatus status) {
         this.status = status;
-    }
-
-    public void decreaseStock(int quantity) {
-        if (this.stockQuantity < quantity) {
-            throw new IllegalArgumentException("재고가 부족합니다. 현재 재고: " + this.stockQuantity);
-        }
-        this.stockQuantity -= quantity;
-        if (this.stockQuantity == 0) {
-            this.status = ProductStatus.SOLD_OUT;
-        }
-    }
-
-    public void increaseStock(int quantity) {
-        this.stockQuantity += quantity;
-        if (this.status == ProductStatus.SOLD_OUT) {
-            this.status = ProductStatus.ACTIVE;
-        }
     }
 }

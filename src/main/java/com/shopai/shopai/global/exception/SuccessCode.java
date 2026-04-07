@@ -15,6 +15,9 @@ public enum SuccessCode {
     PRODUCT_UPDATED(HttpStatus.OK, "상품이 수정되었습니다."),
     PRODUCT_DELETED(HttpStatus.OK, "상품이 삭제되었습니다."),
     PRODUCT_AI_DESCRIPTION_REQUESTED(HttpStatus.OK, "AI 설명 생성이 요청되었습니다."),
+    VARIANT_CREATED(HttpStatus.CREATED, "variant가 추가되었습니다."),
+    VARIANT_UPDATED(HttpStatus.OK, "variant가 수정되었습니다."),
+    VARIANT_DELETED(HttpStatus.OK, "variant가 삭제되었습니다."),
 
     // Order
     ORDER_CREATED(HttpStatus.CREATED, "주문이 생성되었습니다."),

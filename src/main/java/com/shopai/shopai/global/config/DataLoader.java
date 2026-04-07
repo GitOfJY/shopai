@@ -1,6 +1,6 @@
 package com.shopai.shopai.global.config;
 
-import com.shopai.shopai.domain.product.entity.Product;
+import com.shopai.shopai.domain.product.entity.*;
 import com.shopai.shopai.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -14,7 +14,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Profile("local")
 public class DataLoader implements CommandLineRunner {
-
     private final ProductRepository productRepository;
 
     @Override
@@ -23,19 +22,131 @@ public class DataLoader implements CommandLineRunner {
             return;
         }
 
-        List<Product> products = List.of(
-                Product.builder().name("나이키 에어맥스 90").category("신발").price(new BigDecimal("139000")).description("클래식한 디자인의 러닝화").stockQuantity(50).build(),
-                Product.builder().name("아디다스 울트라부스트 22").category("신발").price(new BigDecimal("189000")).description("편안한 쿠셔닝의 러닝화").stockQuantity(30).build(),
-                Product.builder().name("리바이스 501 오리지널").category("바지").price(new BigDecimal("89000")).description("클래식 스트레이트 핏 데님").stockQuantity(100).build(),
-                Product.builder().name("유니클로 히트텍 이너웨어").category("상의").price(new BigDecimal("19900")).description("겨울철 필수 기능성 이너웨어").stockQuantity(200).build(),
-                Product.builder().name("자라 오버사이즈 코트").category("아우터").price(new BigDecimal("159000")).description("트렌디한 오버핏 울 코트").stockQuantity(25).build(),
-                Product.builder().name("뉴발란스 993").category("신발").price(new BigDecimal("259000")).description("프리미엄 메이드 인 USA 러닝화").stockQuantity(15).build(),
-                Product.builder().name("무지 린넨 셔츠").category("상의").price(new BigDecimal("49900")).description("여름용 내추럴 린넨 셔츠").stockQuantity(80).build(),
-                Product.builder().name("노스페이스 눕시 패딩").category("아우터").price(new BigDecimal("329000")).description("겨울 필수 숏패딩").stockQuantity(40).build(),
-                Product.builder().name("캘빈클라인 드로즈 3팩").category("속옷").price(new BigDecimal("59000")).description("기본 코튼 드로즈 세트").stockQuantity(150).build(),
-                Product.builder().name("구찌 GG 마몬트 벨트").category("액세서리").price(new BigDecimal("650000")).description("시그니처 더블G 버클 가죽 벨트").stockQuantity(10).build()
-        );
+        // 상품 1: 나이키 에어맥스 90
+        Product airmax = Product.builder()
+                .name("나이키 에어맥스 90")
+                .category("신발")
+                .basePrice(new BigDecimal("139000"))
+                .description("클래식한 디자인의 러닝화")
+                .build();
 
-        productRepository.saveAll(products);
+        // 옵션그룹: 사이즈
+        ProductOptionGroup sizeGroup = ProductOptionGroup.builder()
+                .product(airmax)
+                .name("사이즈")
+                .sortOrder(1)
+                .build();
+
+        ProductOptionValue size260 = ProductOptionValue.builder().optionGroup(sizeGroup).value("260").sortOrder(1).build();
+        ProductOptionValue size270 = ProductOptionValue.builder().optionGroup(sizeGroup).value("270").sortOrder(2).build();
+        ProductOptionValue size280 = ProductOptionValue.builder().optionGroup(sizeGroup).value("280").sortOrder(3).build();
+        sizeGroup.getOptionValues().addAll(List.of(size260, size270, size280));
+
+        // 옵션그룹: 색상
+        ProductOptionGroup colorGroup = ProductOptionGroup.builder()
+                .product(airmax)
+                .name("색상")
+                .sortOrder(2)
+                .build();
+
+        ProductOptionValue black = ProductOptionValue.builder().optionGroup(colorGroup).value("블랙").sortOrder(1).build();
+        ProductOptionValue white = ProductOptionValue.builder().optionGroup(colorGroup).value("화이트").sortOrder(2).build();
+        colorGroup.getOptionValues().addAll(List.of(black, white));
+
+        airmax.getOptionGroups().addAll(List.of(sizeGroup, colorGroup));
+
+        // Variants (사이즈 x 색상 조합)
+        createVariant(airmax, "AM90-260-BLK", BigDecimal.ZERO, 10, size260, black);
+        createVariant(airmax, "AM90-260-WHT", BigDecimal.ZERO, 5, size260, white);
+        createVariant(airmax, "AM90-270-BLK", BigDecimal.ZERO, 8, size270, black);
+        createVariant(airmax, "AM90-270-WHT", BigDecimal.ZERO, 12, size270, white);
+        createVariant(airmax, "AM90-280-BLK", new BigDecimal("10000"), 3, size280, black);
+        createVariant(airmax, "AM90-280-WHT", new BigDecimal("10000"), 7, size280, white);
+
+        // 상품 2: 리바이스 501
+        Product levis = Product.builder()
+                .name("리바이스 501 오리지널")
+                .category("바지")
+                .basePrice(new BigDecimal("89000"))
+                .description("클래식 스트레이트 핏 데님")
+                .build();
+
+        ProductOptionGroup waistGroup = ProductOptionGroup.builder()
+                .product(levis)
+                .name("허리")
+                .sortOrder(1)
+                .build();
+
+        ProductOptionValue waist30 = ProductOptionValue.builder().optionGroup(waistGroup).value("30").sortOrder(1).build();
+        ProductOptionValue waist32 = ProductOptionValue.builder().optionGroup(waistGroup).value("32").sortOrder(2).build();
+        ProductOptionValue waist34 = ProductOptionValue.builder().optionGroup(waistGroup).value("34").sortOrder(3).build();
+        waistGroup.getOptionValues().addAll(List.of(waist30, waist32, waist34));
+
+        ProductOptionGroup lengthGroup = ProductOptionGroup.builder()
+                .product(levis)
+                .name("기장")
+                .sortOrder(2)
+                .build();
+
+        ProductOptionValue length30 = ProductOptionValue.builder().optionGroup(lengthGroup).value("30").sortOrder(1).build();
+        ProductOptionValue length32 = ProductOptionValue.builder().optionGroup(lengthGroup).value("32").sortOrder(2).build();
+        lengthGroup.getOptionValues().addAll(List.of(length30, length32));
+
+        levis.getOptionGroups().addAll(List.of(waistGroup, lengthGroup));
+
+        createVariant(levis, "LV501-30-30", BigDecimal.ZERO, 20, waist30, length30);
+        createVariant(levis, "LV501-30-32", BigDecimal.ZERO, 15, waist30, length32);
+        createVariant(levis, "LV501-32-30", BigDecimal.ZERO, 25, waist32, length30);
+        createVariant(levis, "LV501-32-32", BigDecimal.ZERO, 18, waist32, length32);
+        createVariant(levis, "LV501-34-30", BigDecimal.ZERO, 10, waist34, length30);
+        createVariant(levis, "LV501-34-32", BigDecimal.ZERO, 12, waist34, length32);
+
+        // 상품 3: 노스페이스 눕시 (옵션 1개: 사이즈만)
+        Product nuptse = Product.builder()
+                .name("노스페이스 눕시 패딩")
+                .category("아우터")
+                .basePrice(new BigDecimal("329000"))
+                .description("겨울 필수 숏패딩")
+                .build();
+
+        ProductOptionGroup nuptseSizeGroup = ProductOptionGroup.builder()
+                .product(nuptse)
+                .name("사이즈")
+                .sortOrder(1)
+                .build();
+
+        ProductOptionValue sizeS = ProductOptionValue.builder().optionGroup(nuptseSizeGroup).value("S").sortOrder(1).build();
+        ProductOptionValue sizeM = ProductOptionValue.builder().optionGroup(nuptseSizeGroup).value("M").sortOrder(2).build();
+        ProductOptionValue sizeL = ProductOptionValue.builder().optionGroup(nuptseSizeGroup).value("L").sortOrder(3).build();
+        ProductOptionValue sizeXL = ProductOptionValue.builder().optionGroup(nuptseSizeGroup).value("XL").sortOrder(4).build();
+        nuptseSizeGroup.getOptionValues().addAll(List.of(sizeS, sizeM, sizeL, sizeXL));
+
+        nuptse.getOptionGroups().add(nuptseSizeGroup);
+
+        createVariant(nuptse, "NF-NUPTSE-S", BigDecimal.ZERO, 5, sizeS);
+        createVariant(nuptse, "NF-NUPTSE-M", BigDecimal.ZERO, 8, sizeM);
+        createVariant(nuptse, "NF-NUPTSE-L", BigDecimal.ZERO, 12, sizeL);
+        createVariant(nuptse, "NF-NUPTSE-XL", BigDecimal.ZERO, 6, sizeXL);
+
+        productRepository.saveAll(List.of(airmax, levis, nuptse));
+    }
+
+    private void createVariant(Product product, String sku, BigDecimal additionalPrice, int stock, ProductOptionValue... optionValues) {
+        ProductVariant variant = ProductVariant.builder()
+                .product(product)
+                .sku(sku)
+                .additionalPrice(additionalPrice)
+                .stockQuantity(stock)
+                .build();
+
+        for (ProductOptionValue ov : optionValues) {
+            ProductVariantOption vOption = ProductVariantOption.builder()
+                    .variant(variant)
+                    .optionValue(ov)
+                    .build();
+            variant.getVariantOptions().add(vOption);
+        }
+
+        product.getVariants().add(variant);
     }
 }
