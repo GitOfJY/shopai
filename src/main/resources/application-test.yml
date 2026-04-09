@@ -21,3 +21,6 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
       - org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
+jwt:
+  secret: shopai-test-jwt-secret-key-must-be-at-least-256-bits-long-for-hs256
+  expiration: 86400000
