@@ -20,17 +20,7 @@
 | Docs | Swagger (springdoc), Flyway |
 
 ## 시스템 아키텍처
-
-```
-React (Frontend)  ──▶  Spring Boot (OMS)  ──▶  RabbitMQ    ──▶  FastAPI (AI)
- USER 쇼핑 페이지         상품/주문/재고/정산         ai.request       LangGraph Agent
- ADMIN 관리 페이지        JWT 인증             ◀── ai.response ◀── OpenAI API
- Store 셀러 페이지        REST API
-                       Redis 캐싱
-
-                           ↓
-                       MySQL + Redis
-```
+![ShopAI Architecture](docs/architecture.png)
 
 ## 주요 기능
 
