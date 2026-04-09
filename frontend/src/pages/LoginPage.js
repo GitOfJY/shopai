@@ -20,7 +20,8 @@ export default function LoginPage({ onLogin }) {
             localStorage.setItem('token', res.data.data.token);
             localStorage.setItem('member', JSON.stringify(res.data.data.member));
             onLogin(res.data.data.member);
-            navigate('/');
+            // ADMIN이면 /admin으로, USER면 /로
+            navigate(res.data.data.member.role === 'ADMIN' ? '/admin' : '/');
         } catch (err) {
             setError(err.response?.data?.message || '로그인 실패');
         }

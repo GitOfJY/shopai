@@ -70,4 +70,12 @@ public class OrderController {
         OrderResponse order = orderService.updateOrderStatus(orderId, request);
         return ResponseEntity.ok(ApiResponse.of(SuccessCode.OK, order));
     }
+
+    @GetMapping("/admin")
+    @Operation(summary = "전체 주문 목록 (관리자)", description = "모든 회원의 주문 조회")
+    public ResponseEntity<ApiResponse<Page<OrderResponse>>> getAllOrders(
+            @PageableDefault(size = 50, sort = "orderedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<OrderResponse> orders = orderService.getAllOrders(pageable);
+        return ResponseEntity.ok(ApiResponse.ok(orders));
+    }
 }
