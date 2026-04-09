@@ -1,10 +1,14 @@
 package com.shopai.shopai.global.config;
 
+import com.shopai.shopai.domain.member.entity.Member;
+import com.shopai.shopai.domain.member.entity.MemberRole;
+import com.shopai.shopai.domain.member.repository.MemberRepository;
 import com.shopai.shopai.domain.product.entity.*;
 import com.shopai.shopai.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -15,9 +19,22 @@ import java.util.List;
 @Profile("local")
 public class DataLoader implements CommandLineRunner {
     private final ProductRepository productRepository;
+    private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
+        if (!memberRepository.existsByEmail("admin@shopai.com")) {
+            Member admin = Member.builder()
+                    .email("admin@shopai.com")
+                    .password(passwordEncoder.encode("admin1234"))
+                    .name("관리자")
+                    .phone("01000000000")
+                    .role(MemberRole.ADMIN)
+                    .build();
+            memberRepository.save(admin);
+        }
+
         if (productRepository.count() > 0) {
             return;
         }
