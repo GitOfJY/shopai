@@ -22,7 +22,6 @@ public enum SuccessCode {
     // Order
     ORDER_CREATED(HttpStatus.CREATED, "주문이 생성되었습니다."),
     ORDER_CANCELLED(HttpStatus.OK, "주문이 취소되었습니다."),
-    ORDER_RETURNED(HttpStatus.OK, "반품이 처리되었습니다."),
 
     // Settlement
     SETTLEMENT_CALCULATED(HttpStatus.OK, "정산이 완료되었습니다."),

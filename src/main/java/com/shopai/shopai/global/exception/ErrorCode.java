@@ -19,6 +19,7 @@ public enum ErrorCode {
     // Order
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "O001", "주문을 찾을 수 없습니다."),
     ORDER_ALREADY_CANCELLED(HttpStatus.BAD_REQUEST, "O002", "이미 취소된 주문입니다."),
+    ORDER_CANNOT_CANCEL(HttpStatus.BAD_REQUEST, "O002", "배송 시작 후에는 취소할 수 없습니다."),
 
     // Inventory
     INVENTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "I001", "재고 정보를 찾을 수 없습니다."),
