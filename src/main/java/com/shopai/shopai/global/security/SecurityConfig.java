@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/ai/**").permitAll()
                         .requestMatchers("/api/orders/admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/store/**").permitAll()
                         // 나머지는 인증 필요
                         .anyRequest().authenticated()
                 )

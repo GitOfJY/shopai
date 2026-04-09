@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import UserNav from '../components/UserNav';
@@ -14,6 +14,23 @@ export default function CheckoutPage({ member, onLogout }) {
         shippingAddressDetail: member?.addressDetail || '',
     });
     const [loading, setLoading] = useState(false);
+    const [storeInfo, setStoreInfo] = useState(null);
+
+    useEffect(() => {
+        const fetchStoreInfo = async () => {
+            if (cart.length > 0 && cart[0].productId) {
+                try {
+                    const prodRes = await api.get(`/products/${cart[0].productId}`);
+                    const sellerId = prodRes.data.data.sellerId;
+                    if (sellerId) {
+                        const storeRes = await api.get(`/store/by-seller/${sellerId}`);
+                        setStoreInfo(storeRes.data.data);
+                    }
+                } catch (err) { console.error(err); }
+            }
+        };
+        fetchStoreInfo();
+    }, [cart]);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -26,6 +43,9 @@ export default function CheckoutPage({ member, onLogout }) {
         if (cart.length === 0) { alert('장바구니가 비어있습니다.'); return; }
         setLoading(true);
         try {
+            if (storeInfo) {
+                localStorage.setItem('lastStoreInfo', JSON.stringify(storeInfo));
+            }
             const body = {
                 recipientName: form.recipientName,
                 recipientPhone: form.recipientPhone,
@@ -90,8 +110,12 @@ export default function CheckoutPage({ member, onLogout }) {
                         <h3 style={styles.sectionTitle}>PAYMENT</h3>
                         <div style={styles.bankInfo}>
                             <p style={styles.bankTitle}>계좌이체</p>
-                            <p style={styles.bankDetail}>농협 301-0000-0000-00</p>
-                            <p style={styles.bankDetail}>예금주: SHOPAI</p>
+                            <p style={styles.bankDetail}>
+                                {storeInfo ? `${storeInfo.bankName} ${storeInfo.bankAccount}` : '계좌 정보 로딩중...'}
+                            </p>
+                            <p style={styles.bankDetail}>
+                                예금주: {storeInfo ? storeInfo.bankHolder : '-'}
+                            </p>
                             <p style={styles.bankNote}>주문 후 입금 확인 시 발송됩니다.</p>
                         </div>
                     </div>

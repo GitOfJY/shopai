@@ -24,6 +24,7 @@ public class ProductResponse {
     private ProductStatus status;
     private List<OptionGroupResponse> optionGroups;
     private List<VariantResponse> variants;
+    private Long sellerId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -43,6 +44,7 @@ public class ProductResponse {
                 .variants(product.getVariants().stream()
                         .map(VariantResponse::from)
                         .toList())
+                .sellerId(product.getSeller() != null ? product.getSeller().getId() : null)
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .build();

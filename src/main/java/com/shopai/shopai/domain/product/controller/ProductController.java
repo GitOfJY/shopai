@@ -5,6 +5,7 @@ import com.shopai.shopai.domain.product.entity.ProductStatus;
 import com.shopai.shopai.domain.product.service.ProductService;
 import com.shopai.shopai.global.dto.ApiResponse;
 import com.shopai.shopai.global.exception.SuccessCode;
+import com.shopai.shopai.global.security.AuthMemberId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,8 +47,9 @@ public class ProductController {
     @PostMapping
     @Operation(summary = "상품 등록")
     public ResponseEntity<ApiResponse<ProductResponse>> createProduct(
+            @AuthMemberId Long memberId,
             @Valid @RequestBody ProductCreateRequest request) {
-        ProductResponse product = productService.createProduct(request);
+        ProductResponse product = productService.createProduct(memberId, request);
         return ResponseEntity.status(SuccessCode.PRODUCT_CREATED.getStatus())
                 .body(ApiResponse.of(SuccessCode.PRODUCT_CREATED, product));
     }

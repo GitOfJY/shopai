@@ -1,0 +1,15 @@
+CREATE TABLE seller_profiles (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    member_id BIGINT NOT NULL UNIQUE,
+    store_slug VARCHAR(50) NOT NULL UNIQUE,
+    store_name VARCHAR(100) NOT NULL,
+    bank_name VARCHAR(50) NOT NULL,
+    bank_account VARCHAR(50) NOT NULL,
+    bank_holder VARCHAR(50) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (member_id) REFERENCES members(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE products ADD COLUMN seller_id BIGINT AFTER id;
+ALTER TABLE products ADD FOREIGN KEY (seller_id) REFERENCES members(id);

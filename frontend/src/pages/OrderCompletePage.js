@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import UserNav from '../components/UserNav';
 
@@ -5,6 +6,10 @@ export default function OrderCompletePage({ member, onLogout }) {
     const navigate = useNavigate();
     const location = useLocation();
     const order = location.state?.order;
+    const [storeInfo] = useState(() => {
+        const saved = localStorage.getItem('lastStoreInfo');
+        return saved ? JSON.parse(saved) : null;
+    });
 
     return (
         <div style={styles.container}>
@@ -35,7 +40,9 @@ export default function OrderCompletePage({ member, onLogout }) {
 
                     <div style={styles.bankBox}>
                         <p style={styles.bankTitle}>입금 안내</p>
-                        <p style={styles.bankDetail}>농협 301-0000-0000-00 (SHOPAI)</p>
+                        <p style={styles.bankDetail}>
+                            {storeInfo ? `${storeInfo.bankName} ${storeInfo.bankAccount} (${storeInfo.bankHolder})` : '계좌 정보를 확인해주세요.'}
+                        </p>
                         <p style={styles.bankNote}>입금 확인 후 발송됩니다.</p>
                     </div>
 
