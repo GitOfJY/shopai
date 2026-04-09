@@ -24,3 +24,6 @@ spring:
     port: 5672
     username: shopai
     password: shopai1234
+jwt:
+  secret: shopai-local-jwt-secret-key-must-be-at-least-256-bits-long-for-hs256
+  expiration: 86400000

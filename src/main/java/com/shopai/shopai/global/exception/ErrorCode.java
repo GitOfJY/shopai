@@ -25,6 +25,11 @@ public enum ErrorCode {
 
     // Settlement
     SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "S001", "정산 정보를 찾을 수 없습니다."),
+
+    // Member
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "M001", "회원을 찾을 수 없습니다."),
+    MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "M002", "이미 가입된 이메일입니다."),
+    INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "M003", "비밀번호가 일치하지 않습니다."),
     ;
 
     private final HttpStatus status;
