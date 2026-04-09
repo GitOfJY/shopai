@@ -9,6 +9,7 @@ import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderCompletePage from './pages/OrderCompletePage';
 import OrderListPage from './pages/OrderListPage';
+import StorePage from './pages/StorePage';
 import AdminProductListPage from './pages/admin/AdminProductListPage';
 import AdminOrderListPage from './pages/admin/AdminOrderListPage';
 import AdminInventoryPage from './pages/admin/AdminInventoryPage';
@@ -34,6 +35,9 @@ function App() {
 
     const isAdmin = member?.role === 'ADMIN';
 
+    const adminOnly = (element) => member && isAdmin ? element : <Navigate to="/login" />;
+    const authOnly = (element) => member ? element : <Navigate to="/login" />;
+
     return (
         <BrowserRouter>
             <Routes>
@@ -41,26 +45,26 @@ function App() {
                 <Route path="/signup" element={member ? <Navigate to="/" /> : <SignupPage />} />
 
                 {/* Admin */}
-                {member && isAdmin && (
-                    <>
-                        <Route path="/admin" element={<HomePage member={member} onLogout={handleLogout} />} />
-                        <Route path="/admin/products" element={<AdminProductListPage member={member} onLogout={handleLogout} />} />
-                        <Route path="/admin/orders" element={<AdminOrderListPage member={member} onLogout={handleLogout} />} />
-                        <Route path="/admin/inventory" element={<AdminInventoryPage member={member} onLogout={handleLogout} />} />
-                        <Route path="/admin/settlements" element={<AdminSettlementPage member={member} onLogout={handleLogout} />} />
-                        <Route path="/admin/ai" element={<AdminAIPage member={member} onLogout={handleLogout} />} />
-                    </>
-                )}
+                <Route path="/admin" element={adminOnly(<HomePage member={member} onLogout={handleLogout} />)} />
+                <Route path="/admin/products" element={adminOnly(<AdminProductListPage member={member} onLogout={handleLogout} />)} />
+                <Route path="/admin/orders" element={adminOnly(<AdminOrderListPage member={member} onLogout={handleLogout} />)} />
+                <Route path="/admin/inventory" element={adminOnly(<AdminInventoryPage member={member} onLogout={handleLogout} />)} />
+                <Route path="/admin/settlements" element={adminOnly(<AdminSettlementPage member={member} onLogout={handleLogout} />)} />
+                <Route path="/admin/ai" element={adminOnly(<AdminAIPage member={member} onLogout={handleLogout} />)} />
 
-                {/* User (누구나 접근) */}
+                {/* Store (누구나) */}
+                <Route path="/store/:slug" element={<StorePage member={member} onLogout={handleLogout} />} />
+                <Route path="/store/:slug/products/:id" element={<ProductDetailPage member={member} onLogout={handleLogout} />} />
+
+                {/* User (누구나) */}
                 <Route path="/" element={<UserHomePage member={member} onLogout={handleLogout} />} />
                 <Route path="/products/:id" element={<ProductDetailPage member={member} onLogout={handleLogout} />} />
                 <Route path="/cart" element={<CartPage member={member} onLogout={handleLogout} />} />
 
                 {/* User (로그인 필요) */}
-                <Route path="/checkout" element={member ? <CheckoutPage member={member} onLogout={handleLogout} /> : <Navigate to="/login" />} />
-                <Route path="/order-complete" element={member ? <OrderCompletePage member={member} onLogout={handleLogout} /> : <Navigate to="/login" />} />
-                <Route path="/orders" element={member ? <OrderListPage member={member} onLogout={handleLogout} /> : <Navigate to="/login" />} />
+                <Route path="/checkout" element={authOnly(<CheckoutPage member={member} onLogout={handleLogout} />)} />
+                <Route path="/order-complete" element={authOnly(<OrderCompletePage member={member} onLogout={handleLogout} />)} />
+                <Route path="/orders" element={authOnly(<OrderListPage member={member} onLogout={handleLogout} />)} />
 
                 <Route path="*" element={<Navigate to="/" />} />
             </Routes>

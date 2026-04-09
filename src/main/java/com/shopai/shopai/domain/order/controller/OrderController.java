@@ -72,10 +72,12 @@ public class OrderController {
     }
 
     @GetMapping("/admin")
-    @Operation(summary = "전체 주문 목록 (관리자)", description = "모든 회원의 주문 조회")
-    public ResponseEntity<ApiResponse<Page<OrderResponse>>> getAllOrders(
-            @PageableDefault(size = 50, sort = "orderedAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<OrderResponse> orders = orderService.getAllOrders(pageable);
+    @Operation(summary = "셀러 주문 목록 (관리자)", description = "본인 상품이 포함된 주문 조회")
+    public ResponseEntity<ApiResponse<Page<OrderResponse>>> getSellerOrders(
+            @AuthMemberId Long memberId,
+            @PageableDefault(size = 50, sort = "orderedAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<OrderResponse> orders = orderService.getSellerOrders(memberId, pageable);
         return ResponseEntity.ok(ApiResponse.ok(orders));
     }
 }

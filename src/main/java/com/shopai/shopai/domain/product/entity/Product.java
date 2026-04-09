@@ -1,5 +1,6 @@
 package com.shopai.shopai.domain.product.entity;
 
+import com.shopai.shopai.domain.member.entity.Member;
 import com.shopai.shopai.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,6 +19,10 @@ public class Product extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id")
+    private Member seller;
 
     @Column(nullable = false, length = 200)
     private String name;

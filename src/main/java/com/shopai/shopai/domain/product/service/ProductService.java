@@ -1,5 +1,7 @@
 package com.shopai.shopai.domain.product.service;
 
+import com.shopai.shopai.domain.member.entity.Member;
+import com.shopai.shopai.domain.member.repository.MemberRepository;
 import com.shopai.shopai.domain.product.dto.*;
 import com.shopai.shopai.domain.product.entity.*;
 import com.shopai.shopai.domain.product.repository.ProductRepository;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ProductService {
     private final ProductRepository productRepository;
+    private final MemberRepository memberRepository;
 
     public Page<ProductResponse> getProducts(String category, ProductStatus status, Pageable pageable) {
         Page<Product> products;
@@ -43,13 +46,17 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse createProduct(ProductCreateRequest request) {
+    public ProductResponse createProduct(Long memberId, ProductCreateRequest request) {
+        Member seller = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(ErrorCode.MEMBER_NOT_FOUND));
+
         Product product = Product.builder()
                 .name(request.getName())
                 .category(request.getCategory())
                 .basePrice(request.getBasePrice())
                 .description(request.getDescription())
                 .imageUrl(request.getImageUrl())
+                .seller(seller)
                 .build();
 
         // 옵션그룹 + 옵션값 조립
@@ -167,7 +174,7 @@ public class ProductService {
         ProductVariant variant = product.getVariants().stream()
                 .filter(v -> v.getId().equals(variantId))
                 .findFirst()
-                .orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND, "variant를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BaseException(ErrorCode.VARIANT_NOT_FOUND));
 
         ProductStatus status = request.getStatus() != null ? ProductStatus.valueOf(request.getStatus()) : null;
         variant.update(request.getAdditionalPrice(), request.getStockQuantity(), status);
@@ -189,5 +196,10 @@ public class ProductService {
     private Product findProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
+    }
+
+    public Page<ProductResponse> getMyProducts(Long memberId, Pageable pageable) {
+        return productRepository.findBySellerId(memberId, pageable)
+                .map(ProductResponse::from);
     }
 }

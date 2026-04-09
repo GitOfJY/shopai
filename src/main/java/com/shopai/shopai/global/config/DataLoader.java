@@ -5,6 +5,8 @@ import com.shopai.shopai.domain.member.entity.MemberRole;
 import com.shopai.shopai.domain.member.repository.MemberRepository;
 import com.shopai.shopai.domain.product.entity.*;
 import com.shopai.shopai.domain.product.repository.ProductRepository;
+import com.shopai.shopai.domain.seller.entity.SellerProfile;
+import com.shopai.shopai.domain.seller.repository.SellerProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -18,12 +20,15 @@ import java.util.List;
 @RequiredArgsConstructor
 @Profile("local")
 public class DataLoader implements CommandLineRunner {
-    private final ProductRepository productRepository;
+
     private final MemberRepository memberRepository;
+    private final SellerProfileRepository sellerProfileRepository;
+    private final ProductRepository productRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
+        // Admin 생성
         if (!memberRepository.existsByEmail("admin@shopai.com")) {
             Member admin = Member.builder()
                     .email("admin@shopai.com")
@@ -33,11 +38,22 @@ public class DataLoader implements CommandLineRunner {
                     .role(MemberRole.ADMIN)
                     .build();
             memberRepository.save(admin);
+
+            SellerProfile profile = SellerProfile.builder()
+                    .member(admin)
+                    .storeSlug("shopai")
+                    .storeName("SHOPAI STORE")
+                    .bankName("농협")
+                    .bankAccount("301-0000-0000-00")
+                    .bankHolder("SHOPAI")
+                    .build();
+            sellerProfileRepository.save(profile);
         }
 
-        if (productRepository.count() > 0) {
-            return;
-        }
+        // 상품 seed
+        if (productRepository.count() > 0) return;
+
+        Member admin = memberRepository.findByEmail("admin@shopai.com").orElseThrow();
 
         // 상품 1: 나이키 에어맥스 90
         Product airmax = Product.builder()
@@ -45,34 +61,22 @@ public class DataLoader implements CommandLineRunner {
                 .category("신발")
                 .basePrice(new BigDecimal("139000"))
                 .description("클래식한 디자인의 러닝화")
+                .seller(admin)
                 .build();
 
-        // 옵션그룹: 사이즈
-        ProductOptionGroup sizeGroup = ProductOptionGroup.builder()
-                .product(airmax)
-                .name("사이즈")
-                .sortOrder(1)
-                .build();
-
+        ProductOptionGroup sizeGroup = ProductOptionGroup.builder().product(airmax).name("사이즈").sortOrder(1).build();
         ProductOptionValue size260 = ProductOptionValue.builder().optionGroup(sizeGroup).value("260").sortOrder(1).build();
         ProductOptionValue size270 = ProductOptionValue.builder().optionGroup(sizeGroup).value("270").sortOrder(2).build();
         ProductOptionValue size280 = ProductOptionValue.builder().optionGroup(sizeGroup).value("280").sortOrder(3).build();
         sizeGroup.getOptionValues().addAll(List.of(size260, size270, size280));
 
-        // 옵션그룹: 색상
-        ProductOptionGroup colorGroup = ProductOptionGroup.builder()
-                .product(airmax)
-                .name("색상")
-                .sortOrder(2)
-                .build();
-
+        ProductOptionGroup colorGroup = ProductOptionGroup.builder().product(airmax).name("색상").sortOrder(2).build();
         ProductOptionValue black = ProductOptionValue.builder().optionGroup(colorGroup).value("블랙").sortOrder(1).build();
         ProductOptionValue white = ProductOptionValue.builder().optionGroup(colorGroup).value("화이트").sortOrder(2).build();
         colorGroup.getOptionValues().addAll(List.of(black, white));
 
         airmax.getOptionGroups().addAll(List.of(sizeGroup, colorGroup));
 
-        // Variants (사이즈 x 색상 조합)
         createVariant(airmax, "AM90-260-BLK", BigDecimal.ZERO, 10, size260, black);
         createVariant(airmax, "AM90-260-WHT", BigDecimal.ZERO, 5, size260, white);
         createVariant(airmax, "AM90-270-BLK", BigDecimal.ZERO, 8, size270, black);
@@ -86,25 +90,15 @@ public class DataLoader implements CommandLineRunner {
                 .category("바지")
                 .basePrice(new BigDecimal("89000"))
                 .description("클래식 스트레이트 핏 데님")
+                .seller(admin)
                 .build();
 
-        ProductOptionGroup waistGroup = ProductOptionGroup.builder()
-                .product(levis)
-                .name("허리")
-                .sortOrder(1)
-                .build();
-
+        ProductOptionGroup waistGroup = ProductOptionGroup.builder().product(levis).name("허리").sortOrder(1).build();
         ProductOptionValue waist30 = ProductOptionValue.builder().optionGroup(waistGroup).value("30").sortOrder(1).build();
         ProductOptionValue waist32 = ProductOptionValue.builder().optionGroup(waistGroup).value("32").sortOrder(2).build();
-        ProductOptionValue waist34 = ProductOptionValue.builder().optionGroup(waistGroup).value("34").sortOrder(3).build();
-        waistGroup.getOptionValues().addAll(List.of(waist30, waist32, waist34));
+        waistGroup.getOptionValues().addAll(List.of(waist30, waist32));
 
-        ProductOptionGroup lengthGroup = ProductOptionGroup.builder()
-                .product(levis)
-                .name("기장")
-                .sortOrder(2)
-                .build();
-
+        ProductOptionGroup lengthGroup = ProductOptionGroup.builder().product(levis).name("기장").sortOrder(2).build();
         ProductOptionValue length30 = ProductOptionValue.builder().optionGroup(lengthGroup).value("30").sortOrder(1).build();
         ProductOptionValue length32 = ProductOptionValue.builder().optionGroup(lengthGroup).value("32").sortOrder(2).build();
         lengthGroup.getOptionValues().addAll(List.of(length30, length32));
@@ -115,23 +109,17 @@ public class DataLoader implements CommandLineRunner {
         createVariant(levis, "LV501-30-32", BigDecimal.ZERO, 15, waist30, length32);
         createVariant(levis, "LV501-32-30", BigDecimal.ZERO, 25, waist32, length30);
         createVariant(levis, "LV501-32-32", BigDecimal.ZERO, 18, waist32, length32);
-        createVariant(levis, "LV501-34-30", BigDecimal.ZERO, 10, waist34, length30);
-        createVariant(levis, "LV501-34-32", BigDecimal.ZERO, 12, waist34, length32);
 
-        // 상품 3: 노스페이스 눕시 (옵션 1개: 사이즈만)
+        // 상품 3: 노스페이스 눕시
         Product nuptse = Product.builder()
                 .name("노스페이스 눕시 패딩")
                 .category("아우터")
                 .basePrice(new BigDecimal("329000"))
                 .description("겨울 필수 숏패딩")
+                .seller(admin)
                 .build();
 
-        ProductOptionGroup nuptseSizeGroup = ProductOptionGroup.builder()
-                .product(nuptse)
-                .name("사이즈")
-                .sortOrder(1)
-                .build();
-
+        ProductOptionGroup nuptseSizeGroup = ProductOptionGroup.builder().product(nuptse).name("사이즈").sortOrder(1).build();
         ProductOptionValue sizeS = ProductOptionValue.builder().optionGroup(nuptseSizeGroup).value("S").sortOrder(1).build();
         ProductOptionValue sizeM = ProductOptionValue.builder().optionGroup(nuptseSizeGroup).value("M").sortOrder(2).build();
         ProductOptionValue sizeL = ProductOptionValue.builder().optionGroup(nuptseSizeGroup).value("L").sortOrder(3).build();

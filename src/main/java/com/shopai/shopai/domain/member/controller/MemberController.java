@@ -1,12 +1,10 @@
 package com.shopai.shopai.domain.member.controller;
 
-import com.shopai.shopai.domain.member.dto.LoginResponse;
-import com.shopai.shopai.domain.member.dto.MemberLoginRequest;
-import com.shopai.shopai.domain.member.dto.MemberResponse;
-import com.shopai.shopai.domain.member.dto.MemberSignupRequest;
+import com.shopai.shopai.domain.member.dto.*;
 import com.shopai.shopai.domain.member.service.MemberService;
 import com.shopai.shopai.global.dto.ApiResponse;
 import com.shopai.shopai.global.exception.SuccessCode;
+import com.shopai.shopai.global.security.AuthMemberId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "회원 API", description = "회원가입/로그인 API")
 public class MemberController {
+
     private final MemberService memberService;
 
     @PostMapping("/signup")
@@ -41,5 +40,15 @@ public class MemberController {
     public ResponseEntity<ApiResponse<MemberResponse>> getMember(@PathVariable Long id) {
         MemberResponse member = memberService.getMember(id);
         return ResponseEntity.ok(ApiResponse.ok(member));
+    }
+
+    @PostMapping("/admin/create-seller")
+    @Operation(summary = "셀러 계정 생성 (슈퍼관리자용)")
+    public ResponseEntity<ApiResponse<MemberResponse>> createSeller(
+            @AuthMemberId Long memberId,
+            @Valid @RequestBody SellerCreateRequest request) {
+        MemberResponse seller = memberService.createSeller(memberId, request);
+        return ResponseEntity.status(SuccessCode.MEMBER_CREATED.getStatus())
+                .body(ApiResponse.of(SuccessCode.MEMBER_CREATED, seller));
     }
 }

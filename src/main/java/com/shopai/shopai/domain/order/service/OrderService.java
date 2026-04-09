@@ -125,4 +125,9 @@ public class OrderService {
         return orderRepository.findAll(pageable)
                 .map(OrderResponse::from);
     }
+
+    public Page<OrderResponse> getSellerOrders(Long sellerId, Pageable pageable) {
+        return orderRepository.findByOrderProducts_Variant_Product_SellerId(sellerId, pageable)
+                .map(OrderResponse::from);
+    }
 }
